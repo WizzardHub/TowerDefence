@@ -1,8 +1,10 @@
 package me.wizzard.towerdefence;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.var;
 import me.wizzard.towerdefence.elements.GameArea;
+import me.wizzard.towerdefence.elements.Wave;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +21,12 @@ public class TowerDefence extends JFrame implements Runnable {
     GameArea gameArea;
     Thread gameProcess;
 
-    ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+    ScheduledExecutorService main = Executors.newSingleThreadScheduledExecutor();
+
+    @Getter @Setter
+    int health = 10;
+
+    Wave wave;
 
     public TowerDefence(int width, int height) {
 
@@ -38,6 +45,7 @@ public class TowerDefence extends JFrame implements Runnable {
         this.setVisible(true);
 
         gameArea = new GameArea(this, 25);
+        wave = new Wave(this, 50, 800);
 
         gameProcess = new Thread(this);
         gameProcess.start();
@@ -48,7 +56,8 @@ public class TowerDefence extends JFrame implements Runnable {
      */
 
     public void run() {
-        service.scheduleAtFixedRate(() -> {
+        main.scheduleAtFixedRate(() -> {
+            wave.tick();
             repaint();
         }, 0L, 1000L / 30L, TimeUnit.MILLISECONDS); // 30 FPS
     }
@@ -66,6 +75,7 @@ public class TowerDefence extends JFrame implements Runnable {
             return;
 
         gameArea.drawBackground(g);
+        wave.paint(g);
     }
 
     /*
